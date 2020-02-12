@@ -10,11 +10,6 @@
 CRGB leds[NUM_LEDS];
 
 
-//setup the thermometer
-#define ONE_WIRE_BUS D2
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
-
 
 // Variables we need to detect and debounce button presses.
 int ledState = 0;
@@ -32,11 +27,8 @@ const int reportLed = D4;
 
 void setup() { 
   //start serial
-    Serial.begin(9600);
   //initialize the lights
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
-  //inititalize the thermometers
-    sensors.begin();
   //initialize the pins
     pinMode(buttonPin, INPUT);
     pinMode(reportLed, OUTPUT);
@@ -46,21 +38,7 @@ void setup() {
 }
 
 void loop() {
-  check_button();
-
-  if ( millis() % 1000 == 0 ) {
-  float temp = get_temperature();
-  Serial.println(temp);
-  }
-    
-  
-}
-
-float get_temperature() {
-  sensors.requestTemperatures();
-  float temp = sensors.getTempCByIndex(0);
-  
-  return temp;
+  check_button();  
 }
 
 void check_button() { 
