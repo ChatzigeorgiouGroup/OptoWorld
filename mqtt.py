@@ -29,18 +29,22 @@ class MQTT_connection(threading.Thread):
         self.client.on_message = self.on_mqtt_message
         self.light_state = 0
         self.alive = False
-        self.client.subscribe("batteryhorsestaple")
+        self.client.subscribe("optoworld/temperature")
+        self.client.subscribe("optoworld/lightstatus")
         self.q = queue.Queue()
         self.start()
     def on_mqtt_message(self, client, userdata, message):
-        self.q.put(float(message.payload.decode()))
+        if message.topic == "optoworld/temperature":
+            self.q.put(float(message.payload.decode()))
+        if message.topic == "optoworld/lightstatus":
+            self.light_state = int(message.payload.decode())
         
     def switch_lights(self):
         if self.light_state == 0:
             self.light_state = 1
         else:
             self.light_state = 0
-        self.client.publish("inTopic", int(self.light_state))
+        self.client.publish("optoworld/switch", int(self.light_state))
     
     def run(self):
         self.alive = True
@@ -86,9 +90,9 @@ class MainWindow(QtWidgets.QMainWindow):
         print("click!")
         self.mqtt.switch_lights()
 
-
-app = QtWidgets.QApplication(sys.argv)
-w = MainWindow()
-w.show()
-sys.exit(app.exec_())
-w.mqtt.alive = False
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    w = MainWindow()
+    w.show()
+    sys.exit(app.exec_())
+    w.mqtt.alive = False
