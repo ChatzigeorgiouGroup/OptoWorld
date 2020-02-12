@@ -130,7 +130,7 @@ void reconnect() {
       // Once connected, publish an announcement...
       client.publish("outTopic", "hello world");
       // ... and resubscribe
-      client.subscribe("inTopic");
+      client.subscribe("optoworld/switch");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -180,12 +180,15 @@ void switch_light(bool light_status){
     fill_solid(leds, NUM_LEDS, CRGB(0,0,255));
     FastLED.show();
     digitalWrite(reportLed, LOW);
+    client.publish("optoworld/lightstatus", String(1).c_str());
   }
   else{
     FastLED.clear();
     FastLED.show();
     digitalWrite(reportLed, HIGH);
+    client.publish("optoworld/lightstatus", String(0).c_str());
   }
+  
 }
 
 void setup() {
@@ -213,10 +216,10 @@ void loop() {
   client.loop();
 
   long now = millis();
-  if (now - lastMsg > 2000) {
+  if (now - lastMsg > 5000) {
     lastMsg = now;
     ++value;
     float temp = get_temperature();
-    client.publish("batteryhorsestaple", String(temp).c_str());
+    client.publish("optoworld/temperature", String(temp).c_str());
   }
 }
