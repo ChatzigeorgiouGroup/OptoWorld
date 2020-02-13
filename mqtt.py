@@ -17,7 +17,7 @@ import pyqtgraph as pg
 import sys  # We need sys so that we can pass argv to QApplication
 import os
 from random import randint
-
+import datetime
 
 
 
@@ -33,11 +33,22 @@ class MQTT_connection(threading.Thread):
         self.client.subscribe("optoworld/lightstatus")
         self.q = queue.Queue()
         self.start()
+        self.create_logfile()
+
+    def create_logfile(self):
+        if not os.path.exists("testfile.txt"):
+            with open("testfile.txt", "w") as f:
+                f.write("date\ttime\ttemperature\tlightstate\n")
     def on_mqtt_message(self, client, userdata, message):
         if message.topic == "optoworld/temperature":
-            self.q.put(float(message.payload.decode()))
+            t = message.payload.decode()
+            self.q.put(float(t))
+            self.create_logfile()
+            with open("testfile.txt", "a") as f:
+                f.write(datetime.datetime.now().strftime("%Y%m%d\t%H:%M:%S\t")+ t +"\t"+ str(self.light_state) + "\n")
         if message.topic == "optoworld/lightstatus":
             self.light_state = int(message.payload.decode())
+          
         
     def switch_lights(self):
         if self.light_state == 0:
@@ -50,6 +61,8 @@ class MQTT_connection(threading.Thread):
         self.alive = True
         while self.alive:
             self.client.loop()
+    def stop(self):
+        self.alive = False
             
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -90,9 +103,9 @@ class MainWindow(QtWidgets.QMainWindow):
         print("click!")
         self.mqtt.switch_lights()
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    w = MainWindow()
-    w.show()
-    sys.exit(app.exec_())
-    w.mqtt.alive = False
+#if __name__ == "__main__":
+#    app = QtWidgets.QApplication(sys.argv)
+#    w = MainWindow()
+#    w.show()
+#    sys.exit(app.exec_())
+#    w.mqtt.alive = False
