@@ -59,9 +59,9 @@ const int reportLed = D4;
 
 // Update these with values suitable for your network.
 
-const char* ssid = "DanielsNetwork";
-const char* password = "DwodBsngl#29teRknor";
-const char* mqtt_server = "broker.mqtt-dashboard.com";
+const char* ssid = "ssid";
+const char* password = "password";
+const char* mqtt_server = "broker-ip";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
