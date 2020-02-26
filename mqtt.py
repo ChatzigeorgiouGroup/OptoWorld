@@ -22,7 +22,7 @@ import datetime
 
 
 class MQTT_connection(threading.Thread):
-    def __init__(self, broker_address = "broker.mqtt-dashboard.com", port = 1883):
+    def __init__(self, broker_address, port = 1883):
         threading.Thread.__init__(self)
         self.client = client.Client("read_temperatures")
         self.client.connect(broker_address, port)
@@ -31,7 +31,7 @@ class MQTT_connection(threading.Thread):
         self.alive = False
         self.client.subscribe("optoworld/temperature")
         self.client.subscribe("optoworld/lightstatus")
-        self.q = queue.Queue()
+        self.q = queue.Queue(maxsize = 10)
         self.start()
         self.create_logfile()
 
