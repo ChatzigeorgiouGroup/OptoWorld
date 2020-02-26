@@ -11,12 +11,8 @@ import paho.mqtt.client as client
 import pyqtgraph
 import threading
 import queue
-from PyQt5 import QtWidgets, QtCore, uic
-from pyqtgraph import PlotWidget, plot
-import pyqtgraph as pg
 import sys  # We need sys so that we can pass argv to QApplication
 import os
-from random import randint
 import datetime
 
 
@@ -65,47 +61,3 @@ class MQTT_connection(threading.Thread):
         self.alive = False
             
 
-class MainWindow(QtWidgets.QMainWindow):
-
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
-        self.mqtt = MQTT_connection()
-        self.graphWidget = pg.PlotWidget()
-        self.setCentralWidget(self.graphWidget)
-        self.button = QtWidgets.QPushButton("switch", self) 
-        self.button.clicked.connect(self.on_click)
-        
-        
-  
-
-        self.x = [] # 100 time points
-        self.y = []  # 100 data points
-
-        self.graphWidget.setBackground('w')
-
-        pen = pg.mkPen(color=(255, 0, 0))
-        self.data_line =  self.graphWidget.plot(self.x, self.y, pen=pen)
-         # ... init continued ...
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(500)
-        self.timer.timeout.connect(self.update_plot_data)
-        self.timer.start()
-
-    def update_plot_data(self):
-        self.y.append(self.mqtt.q.get())
-        self.mqtt.q.task_done()
-        self.x = range(len(self.y))
-
-        self.data_line.setData(self.x, self.y)  # Update the data.
-        
-    @QtCore.pyqtSlot()
-    def on_click(self):
-        print("click!")
-        self.mqtt.switch_lights()
-
-#if __name__ == "__main__":
-#    app = QtWidgets.QApplication(sys.argv)
-#    w = MainWindow()
-#    w.show()
-#    sys.exit(app.exec_())
-#    w.mqtt.alive = False
