@@ -10,17 +10,17 @@ Created on Mon Feb 10 15:19:16 2020
 import paho.mqtt.client as client
 import threading
 import queue
-import sys  # We need sys so that we can pass argv to QApplication
 import os
 import datetime
 
 
 
 class MQTT_connection(threading.Thread):
-    def __init__(self, broker_address, port = 1883):
+    def __init__(self, broker_address, port = 1883, path = "./"):
         threading.Thread.__init__(self)
         self.client = client.Client("read_temperatures")
         self.client.connect(broker_address, port)
+        self.path = path
         self.client.on_message = self.on_mqtt_message
         self.light_state = 0
         self.alive = False
@@ -31,15 +31,18 @@ class MQTT_connection(threading.Thread):
         self.create_logfile()
 
     def create_logfile(self):
-        if not os.path.exists("testfile.txt"):
-            with open("testfile.txt", "w") as f:
+        name = datetime.datetime.now().strftime("%Y%m%d_optoworld_temps.txt")
+        self.filename = os.path.join(self.path, name)
+        if not os.path.exists(self.filename):
+            with open(self.filename, "w") as f:
                 f.write("date\ttime\ttemperature\tlightstate\n")
+                
     def on_mqtt_message(self, client, userdata, message):
         if message.topic == "optoworld/temperature":
             t = message.payload.decode()
             self.q.put(float(t))
             self.create_logfile()
-            with open("testfile.txt", "a") as f:
+            with open(self.filename, "a") as f:
                 f.write(datetime.datetime.now().strftime("%Y%m%d\t%H:%M:%S\t")+ t +"\t"+ str(self.light_state) + "\n")
         if message.topic == "optoworld/lightstatus":
             self.light_state = int(message.payload.decode())
