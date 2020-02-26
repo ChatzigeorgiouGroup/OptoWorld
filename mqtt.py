@@ -8,7 +8,6 @@ Created on Mon Feb 10 15:19:16 2020
 
 
 import paho.mqtt.client as client
-import pyqtgraph
 import threading
 import queue
 import sys  # We need sys so that we can pass argv to QApplication
