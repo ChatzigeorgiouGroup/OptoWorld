@@ -11,7 +11,7 @@ import paho.mqtt.client as client
 import threading
 import queue
 import os
-import datetime
+import datetime, time
 import sys
 
 
@@ -75,14 +75,33 @@ class Listener(MQTT_connection):
         t = message.payload.decode()
         with open(self.filename, "a") as f:
             f.write(datetime.datetime.now().strftime("%Y%m%d\t%H:%M:%S\t")+ t +"\t"+ str(self.light_monitor.light_state) + "\n")
+       
+class Light_Switch(MQTT_connection):
+    def __init__(self, *args, **kwargs):
+        MQTT_connection.__init__(self, *args, **kwargs)
+        self.light_state = 0
         
+    def switch(self):
+        if self.light_state == 1:
+            self.light_state = 0
+        else:
+            self.light_state = 1
+            
+        self.client.publish("optoworld/switch", self.light_state)
+        
+    def sync_with_world(self):
+        self.switch()
+        time.sleep(0.1)
+        self.switch()
         
         
         
         
         
 if __name__ == "__main__":
-    listener = Listener(broker_address = "192.168.1.3", client_name = "listener", path = "/mnt/NAS/optoworld_logs")
+    pass
+#    listener = Listener(broker_address = "192.168.1.3", client_name = "listener", path = "/mnt/NAS/optoworld_logs")
+#    s = Light_Switch(broker_address = "192.168.1.3", client_name = "switch")
         
         
         
