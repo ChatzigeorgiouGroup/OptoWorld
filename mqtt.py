@@ -76,10 +76,12 @@ class Listener(MQTT_connection):
         with open(self.filename, "a") as f:
             f.write(datetime.datetime.now().strftime("%Y%m%d\t%H:%M:%S\t")+ t +"\t"+ str(self.light_monitor.light_state) + "\n")
        
-class Light_Switch(MQTT_connection):
-    def __init__(self, *args, **kwargs):
-        MQTT_connection.__init__(self, *args, **kwargs)
-        self.light_state = 0
+class Light_Switch():
+    def __init__(self, broker_address, client_name,light_state = 0, port = 1883):
+        self.client_name = client_name
+        self.client = client.Client(client_name)
+        self.client.connect(broker_address, port)
+        self.light_state = light_state
         
     def switch(self):
         if self.light_state == 1:
