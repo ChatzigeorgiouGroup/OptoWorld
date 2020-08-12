@@ -38,7 +38,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         
-        self.switch = Light_Switch("192.168.1.9", "light_switch")
+#        self.switch = Light_Switch("192.168.1.9", "light_switch")
         
         self.ui.button_lightswitch.clicked.connect(self.button_clicked)
         
@@ -48,7 +48,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     
     def button_clicked(self):
-        self.switch.switch(self.ui.dial.value())
+        switch = client.Client("Yay")
+        switch.connect("192.168.1.9", port = 1883)
+        switch.publish("optoworld/switch", self.ui.dial.value())
+        switch.disconnect()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
