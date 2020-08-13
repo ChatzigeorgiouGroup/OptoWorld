@@ -1,3 +1,5 @@
+
+
 /*
  Basic ESP8266 MQTT example
 
@@ -28,17 +30,20 @@
 #include <FastLED.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
+#include <BH1750.h>
+
+BH1750 lightSensor;
 
 
 //number of leds we are running
 #define NUM_LEDS 300
-#define DATA_PIN D1
+#define DATA_PIN D6
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
 //setup the thermometer
-#define ONE_WIRE_BUS D2 
+#define ONE_WIRE_BUS D5 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
@@ -131,6 +136,10 @@ float get_temperature() {
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   digitalWrite(BUILTIN_LED, 1);
+
+  Wire.begin(D2, D1);
+  lightSensor.begin();
+  
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
@@ -154,6 +163,8 @@ void loop() {
     lastMsg = now;
     ++value;
     float temp = get_temperature();
+    float lux = lightSensor.readLightLevel();
+    client.publish("optoworld/light_level", String(lux).c_str());
     client.publish("optoworld/temperature", String(temp).c_str());
     client.publish("optoworld/blue_val", String(blue_val).c_str());
   }

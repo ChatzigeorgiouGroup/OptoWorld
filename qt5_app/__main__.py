@@ -17,6 +17,7 @@ import time
 class Signals(QtCore.QObject):
     new_light_value = QtCore.pyqtSignal(int)
     new_temperature_value = QtCore.pyqtSignal(float)
+    new_light_level_value = QtCore.pyqtSignal(float)
 
 class MQTT_pyqt(QtCore.QRunnable):
     def __init__(self, broker_address, client_name, port = 1883):
@@ -26,6 +27,7 @@ class MQTT_pyqt(QtCore.QRunnable):
         self.client.connect(broker_address, port)
         self.client.subscribe("optoworld/blue_val")
         self.client.subscribe("optoworld/temperature")
+        self.client.subscribe("optoworld/light_level")
         self.client.on_message = self.on_mqtt_message
         
         self.signals = Signals()
@@ -37,6 +39,8 @@ class MQTT_pyqt(QtCore.QRunnable):
             self.signals.new_temperature_value.emit(float(m))
         elif "blue" in message.topic:
             self.signals.new_light_value.emit(int(m))
+        elif "level" in message.topic:
+            self.signals.new_light_level_value(float(m))
     
     @QtCore.pyqtSlot()
     def run(self):
@@ -59,8 +63,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.threadpool.start(self.mqtt_listener)
         self.mqtt_listener.signals.new_light_value.connect(self.update_value_label)
         self.mqtt_listener.signals.new_temperature_value.connect(self.update_temperature_label)
-
-    
+        self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
+        
     def button_clicked(self):
         self.send_light_value(self.ui.slider_light.value())
         
@@ -75,6 +79,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def update_temperature_label(self, new_val):
         self.ui.label_status_temperature.setText(f"Temperature: {new_val} C")
+        
+    def update_light_level_label(self, new_val):
+        print("NEW LIGHT:", new_val)
+        self.ui.label_status_light_level.setText(f"Light Level: {new_val} lux")
         
     def closeEvent(self, event):
         self.mqtt_listener.alive = False
