@@ -35,9 +35,9 @@
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-// Variables we need to detect and debounce button presses.
+// variables
 const int reportLed = D4;
-
+int blue_val;
 
 // Update these with values suitable for your network.
 
@@ -76,7 +76,7 @@ void setup_wifi() {
 
 void callback(char* topic, byte* payload, unsigned int length) {
  payload[length] = '\0';
- int blue_val = atoi((char *)payload);
+ blue_val = atoi((char *)payload);
  switch_light(blue_val);
 
 }
@@ -84,6 +84,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
+    digitalWrite(BUILTIN_LED, 1);
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
     String clientId = "ESP8266Client-";
@@ -95,6 +96,7 @@ void reconnect() {
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("optoworld/switch");
+      digitalWrite(BUILTIN_LED, 0);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -114,6 +116,7 @@ void switch_light(int blue_val){
 
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
+  digitalWrite(BUILTIN_LED, 1);
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
@@ -131,5 +134,11 @@ void loop() {
     reconnect();
   }
   client.loop();
-
+  
+  long now = millis();
+  if (now - lastMsg > 1000) {
+    lastMsg = now;
+    ++value;
+    client.publish("optoworld/blue_val", String(blue_val).c_str());
+  }
 }
