@@ -26,6 +26,8 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <FastLED.h>
+#include <DallasTemperature.h>
+#include <OneWire.h>
 
 
 //number of leds we are running
@@ -34,6 +36,11 @@
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
+
+//setup the thermometer
+#define ONE_WIRE_BUS D2 
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
 
 // variables
 const int reportLed = D4;
@@ -114,6 +121,13 @@ void switch_light(int blue_val){
   
 }
 
+float get_temperature() {
+  sensors.requestTemperatures();
+  float temp1 = sensors.getTempCByIndex(0);
+  
+  return temp1;
+}
+
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   digitalWrite(BUILTIN_LED, 1);
@@ -136,9 +150,11 @@ void loop() {
   client.loop();
   
   long now = millis();
-  if (now - lastMsg > 1000) {
+  if (now - lastMsg > 2000) {
     lastMsg = now;
     ++value;
+    float temp = get_temperature();
+    client.publish("optoworld/temperature", String(temp).c_str());
     client.publish("optoworld/blue_val", String(blue_val).c_str());
   }
 }
