@@ -47,6 +47,32 @@ class MQTT_pyqt(QtCore.QRunnable):
         self.alive = True
         while self.alive:
             self.client.loop()
+            
+class Timer(QtCore.QRunnable):
+    def __init__(self, broker_address = "192.168.1.9", port = 1883, client_name = "timer"):
+#        self.timing_df = timing_df
+        QtCore.QRunnable.__init__(self)
+        self.client_name = client_name
+        self.broker_address = broker_address
+        self.port = port
+        
+    @QtCore.pyqtSlot()
+    def run(self):
+        on_time = 5
+        off_time = 3
+        
+        self.client = client.Client(self.client_name)
+        self.client.connect(self.broker_address, self.port)
+        self.alive = True
+        while self.alive:
+            self.client.publish("optoworld/switch", 255)
+        
+            time.sleep(on_time)
+            self.client.publish("optoworld/switch", 0)
+        
+            time.sleep(off_time)
+            
+            
              
         
         
@@ -66,7 +92,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
         
     def button_clicked(self):
-        self.send_light_value(self.ui.slider_light.value())
+#        self.send_light_value(self.ui.slider_light.value())
+        self.timer = Timer()
+        self.threadpool.start(self.timer)
         
     def send_light_value(self, val):
         switch = client.Client("Yay")
@@ -85,6 +113,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def closeEvent(self, event):
         self.mqtt_listener.alive = False
+        self.timer.alive = False
         
         switch_off = QtWidgets.QMessageBox.question(self, "Switch Off?","Do you want to switch off the light on closing?", 
                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
