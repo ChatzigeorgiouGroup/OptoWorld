@@ -40,7 +40,7 @@ class MQTT_pyqt(QtCore.QRunnable):
         elif "blue" in message.topic:
             self.signals.new_light_value.emit(int(m))
         elif "level" in message.topic:
-            self.signals.new_light_level_value(float(m))
+            self.signals.new_light_level_value.emit(float(m))
     
     @QtCore.pyqtSlot()
     def run(self):
@@ -75,13 +75,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         switch.disconnect()
 
     def update_value_label(self, new_val):
-        self.ui.label_status_light.setText(str(new_val))
+        self.ui.label_status_light.setText(f"Light Value: {new_val}")
         
     def update_temperature_label(self, new_val):
         self.ui.label_status_temperature.setText(f"Temperature: {new_val} C")
         
     def update_light_level_label(self, new_val):
-        print("NEW LIGHT:", new_val)
         self.ui.label_status_light_level.setText(f"Light Level: {new_val} lux")
         
     def closeEvent(self, event):

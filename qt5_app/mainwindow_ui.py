@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -27,6 +28,9 @@ class Ui_MainWindow(object):
         self.label_status_light = QtWidgets.QLabel(self.groupBox_2)
         self.label_status_light.setObjectName("label_status_light")
         self.verticalLayout.addWidget(self.label_status_light)
+        self.label_status_light_level = QtWidgets.QLabel(self.groupBox_2)
+        self.label_status_light_level.setObjectName("label_status_light_level")
+        self.verticalLayout.addWidget(self.label_status_light_level)
         self.gridLayout.addWidget(self.groupBox_2, 0, 0, 1, 1)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setObjectName("groupBox")
@@ -67,8 +71,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(_translate("MainWindow", "Status"))
         self.label_status_temperature.setText(_translate("MainWindow", "Temperature"))
         self.label_status_light.setText(_translate("MainWindow", "Light"))
+        self.label_status_light_level.setText(_translate("MainWindow", "TextLabel"))
         self.groupBox.setTitle(_translate("MainWindow", "Controls"))
         self.label_light.setText(_translate("MainWindow", "0"))
         self.button_lightswitch.setText(_translate("MainWindow", "Switch the Light"))
-
-

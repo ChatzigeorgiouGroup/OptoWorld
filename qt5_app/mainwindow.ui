@@ -35,6 +35,13 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLabel" name="label_status_light_level">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
