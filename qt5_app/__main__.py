@@ -74,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         sys.stdout.write("\n\n Closing... \n\n Killing mqtt-monitor thread.... \n")
         self.mqtt_listener.alive = False
         try:
-            self.timer.alive = False
+            self.stim_widget.timer.alive = False
             sys.stdout.write("\nCleaning up remaining timer-threads...")
         except:
             sys.stdout.write("\nNo remaining timer-threads found")

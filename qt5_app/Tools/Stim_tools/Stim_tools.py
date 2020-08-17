@@ -32,11 +32,17 @@ class Timer(QtCore.QRunnable):
         total_time = self.timing_df.on_duration.sum() + self.timing_df.off_duration.sum()
         sys.stdout.write(f"About to execute {len(self.timing_df)} stimuli. Total run time: {total_time} seconds.")
         for index, row in self.timing_df.iterrows():
-            sys.stdout.write(f"\n Currently executing {index}")
-            self.client.publish("optoworld/switch", row["intensity"])
-            time.sleep(row["on_duration"])
-            self.client.publish("optoworld/switch", 0)
-            time.sleep(row["off_duration"])
+            if self.alive:
+                sys.stdout.write(f"\n Currently executing {index}")
+                self.client.publish("optoworld/switch", row["intensity"])
+                time.sleep(row["on_duration"])
+            else:
+                break
+            if self.alive:
+                self.client.publish("optoworld/switch", 0)
+                time.sleep(row["off_duration"])
+            else:
+                break
             
 class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
     def __init__(self, stim_df = False, parent = None):
