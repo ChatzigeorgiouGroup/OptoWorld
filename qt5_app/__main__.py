@@ -9,70 +9,16 @@ Created on Tue Aug 11 14:23:46 2020
 
 
 from mainwindow_ui import Ui_MainWindow
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import QtCore, QtGui, QtWidgets
 import paho.mqtt.client as client
 import sys
 import time
 
-class Signals(QtCore.QObject):
-    new_light_value = QtCore.pyqtSignal(int)
-    new_temperature_value = QtCore.pyqtSignal(float)
-    new_light_level_value = QtCore.pyqtSignal(float)
+from Tools.Stim_tools.Stim_tools import Timer
+from Tools.Stim_tools.Stim_tools import Stim_widget
+from Tools.MQTT_tools import MQTT_Listener
 
-class MQTT_pyqt(QtCore.QRunnable):
-    def __init__(self, broker_address, client_name, port = 1883):
-        QtCore.QRunnable.__init__(self)
-        self.client_name = client_name
-        self.client = client.Client(client_name)
-        self.client.connect(broker_address, port)
-        self.client.subscribe("optoworld/blue_val")
-        self.client.subscribe("optoworld/temperature")
-        self.client.subscribe("optoworld/light_level")
-        self.client.on_message = self.on_mqtt_message
-        
-        self.signals = Signals()
-        
-    def on_mqtt_message(self, client, userdata, message):
-        m = message.payload.decode()
-        sys.stdout.write(f"Message on topic {message.topic}: {m} \n")
-        if "temperature" in message.topic:
-            self.signals.new_temperature_value.emit(float(m))
-        elif "blue" in message.topic:
-            self.signals.new_light_value.emit(int(m))
-        elif "level" in message.topic:
-            self.signals.new_light_level_value.emit(float(m))
-    
-    @QtCore.pyqtSlot()
-    def run(self):
-        self.alive = True
-        while self.alive:
-            self.client.loop()
-            
-class Timer(QtCore.QRunnable):
-    def __init__(self, broker_address = "192.168.1.9", port = 1883, client_name = "timer"):
-#        self.timing_df = timing_df
-        QtCore.QRunnable.__init__(self)
-        self.client_name = client_name
-        self.broker_address = broker_address
-        self.port = port
-        
-    @QtCore.pyqtSlot()
-    def run(self):
-        on_time = 5
-        off_time = 3
-        
-        self.client = client.Client(self.client_name)
-        self.client.connect(self.broker_address, self.port)
-        self.alive = True
-        while self.alive:
-            self.client.publish("optoworld/switch", 255)
-        
-            time.sleep(on_time)
-            self.client.publish("optoworld/switch", 0)
-        
-            time.sleep(off_time)
-            
-            
+
              
         
         
@@ -84,17 +30,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.setupUi(self)
         self.ui.button_lightswitch.clicked.connect(self.button_clicked)
         
-        self.mqtt_listener = MQTT_pyqt("192.168.1.9", "listener")
+        self.mqtt_listener = MQTT_Listener("192.168.1.9", "listener")
         self.threadpool = QtCore.QThreadPool()
         self.threadpool.start(self.mqtt_listener)
         self.mqtt_listener.signals.new_light_value.connect(self.update_value_label)
         self.mqtt_listener.signals.new_temperature_value.connect(self.update_temperature_label)
         self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
         
+        self.ui.action_edit_light_profile.triggered.connect(self.edit_light_profile)
+        
+    def edit_light_profile(self):
+        if not hasattr(self, "stim_widget"):        
+            self.stim_widget = Stim_widget()
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.stim_widget)
+        self.stim_widget.show()
+        
     def button_clicked(self):
-#        self.send_light_value(self.ui.slider_light.value())
-        self.timer = Timer()
-        self.threadpool.start(self.timer)
+        self.send_light_value(self.ui.slider_light.value())
         
     def send_light_value(self, val):
         switch = client.Client("Yay")
@@ -112,16 +64,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.label_status_light_level.setText(f"Light Level: {new_val} lux")
         
     def closeEvent(self, event):
-        self.mqtt_listener.alive = False
-        self.timer.alive = False
-        
         switch_off = QtWidgets.QMessageBox.question(self, "Switch Off?","Do you want to switch off the light on closing?", 
                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if switch_off==QtWidgets.QMessageBox.Yes:
             self.send_light_value(0)
         else:
             pass
-        sys.stdout.write("Good Bye")
+        
+        sys.stdout.write("\n\n Closing... \n\n Killing mqtt-monitor thread.... \n")
+        self.mqtt_listener.alive = False
+        try:
+            self.timer.alive = False
+            sys.stdout.write("\nCleaning up remaining timer-threads...")
+        except:
+            sys.stdout.write("\nNo remaining timer-threads found")
+        
+
+        sys.stdout.write("\n\nGood Bye")
         event.accept()
         
 if __name__ == "__main__":
