@@ -39,7 +39,7 @@ class Timer(QtCore.QRunnable):
             time.sleep(row["off_duration"])
             
 class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
-    def __init__(self, stim_df = False):
+    def __init__(self, stim_df = False, parent = None):
         QtWidgets.QDockWidget.__init__(self)
         Ui_DockWidget.__init__(self)
         self.ui = Ui_DockWidget()
@@ -47,8 +47,8 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         
         self.setWindowTitle("Stimulus Profile")
         self.connect_ui()
-        
-        
+        self.parent = parent
+            
         self.remove_stim_action = QtWidgets.QAction("&Remove Highlighted Stimuli", self, triggered = self.remove_stimuli)
         self.ui.tableView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.tableView.customContextMenuRequested.connect(self.contextMenuEvent_tableView)
@@ -59,6 +59,7 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         else:
             self.stim_df = stim_df
         self.display_stim_df()
+        
     
     def contextMenuEvent_tableView(self, event):
         menu = QtWidgets.QMenu(self)
@@ -72,6 +73,7 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         
     def connect_ui(self):
         self.ui.button_add_stim.clicked.connect(self.add_stim_to_profile)
+        self.ui.button_run.clicked.connect(self.run_profile)
         
     def display_stim_df(self):
         model = pandasModel(self.stim_df)
@@ -96,6 +98,11 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         self.stim_df['id'] = [f"stim_{str(x).zfill(3)}" for x in range(len(self.stim_df))]
         self.display_stim_df()
     
+    def run_profile(self):
+        
+        self.timer = Timer(self.stim_df)
+        self.parent.threadpool.start(self.timer)
+        
         
         
         

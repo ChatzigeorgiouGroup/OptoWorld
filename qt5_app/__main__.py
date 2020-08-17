@@ -41,7 +41,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def edit_light_profile(self):
         if not hasattr(self, "stim_widget"):        
-            self.stim_widget = Stim_widget()
+            self.stim_widget = Stim_widget(parent = self)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.stim_widget)
         self.stim_widget.show()
         
@@ -82,6 +82,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         sys.stdout.write("\n\nGood Bye")
         event.accept()
+    def test_parent(self):
+        print("whhoooooo buddy")
         
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
