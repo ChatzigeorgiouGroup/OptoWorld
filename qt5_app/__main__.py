@@ -17,6 +17,7 @@ import time
 from Tools.Stim_tools.Stim_tools import Timer
 from Tools.Stim_tools.Stim_tools import Stim_widget
 from Tools.MQTT_tools import MQTT_Listener
+from Tools.PlotWidget import PlotWidget
 
 BROKER_IP = "192.168.1.9"
 
@@ -37,7 +38,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.threadpool.start(self.mqtt_listener)
 
         self.ui.action_edit_light_profile.triggered.connect(self.edit_light_profile)
-
+        self.make_graphs()
         
     def edit_light_profile(self):
         if not hasattr(self, "stim_widget"):        
@@ -45,7 +46,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.dock = self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.stim_widget)
         # self.dock.setWidget(self.stim_widget)
         self.stim_widget.show()
-        
+
     def button_clicked(self):
         self.send_light_value(self.ui.slider_light.value())
         
@@ -85,8 +86,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         sys.stdout.write("\n\nGood Bye")
         event.accept()
-    def test_parent(self):
-        print("whhoooooo buddy")
+
+    def make_graphs(self):
+        self.plot_temperature = PlotWidget()
+        self.plot_light_level = PlotWidget()
+        self.plot_light_value = PlotWidget()
+
+        self.ui.framePlotWidget.setLayout(QtWidgets.QVBoxLayout())
+
+        for widget in [self.plot_light_level, self.plot_light_value, self.plot_temperature]:
+            self.ui.framePlotWidget.layout().addWidget(widget)
+
         
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
