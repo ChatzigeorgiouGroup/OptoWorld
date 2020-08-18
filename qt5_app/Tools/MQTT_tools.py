@@ -21,6 +21,7 @@ class Signals(QtCore.QObject):
 class MQTT_Listener(QtCore.QRunnable):
     def __init__(self, broker_address, client_name, port = 1883):
         QtCore.QRunnable.__init__(self)
+        self.signals = Signals()
         self.client_name = client_name
         self.client = client.Client(client_name)
         self.client.connect(broker_address, port)
@@ -28,12 +29,10 @@ class MQTT_Listener(QtCore.QRunnable):
         self.client.subscribe("optoworld/temperature")
         self.client.subscribe("optoworld/light_level")
         self.client.on_message = self.on_mqtt_message
-        
-        self.signals = Signals()
-        
+
     def on_mqtt_message(self, client, userdata, message):
         m = message.payload.decode()
-        sys.stdout.write(f"Message on topic {message.topic}: {m} \n")
+        # sys.stdout.write(f"Message on topic {message.topic}: {m} \n")
         if "temperature" in message.topic:
             self.signals.new_temperature_value.emit(float(m))
         elif "blue" in message.topic:
@@ -46,5 +45,7 @@ class MQTT_Listener(QtCore.QRunnable):
         self.alive = True
         while self.alive:
             self.client.loop()
+
+        self.client.disconnect()
             
          

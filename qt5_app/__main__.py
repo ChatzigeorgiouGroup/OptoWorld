@@ -18,10 +18,8 @@ from Tools.Stim_tools.Stim_tools import Timer
 from Tools.Stim_tools.Stim_tools import Stim_widget
 from Tools.MQTT_tools import MQTT_Listener
 
+BROKER_IP = "192.168.1.9"
 
-             
-        
-        
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
@@ -30,13 +28,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.setupUi(self)
         self.ui.button_lightswitch.clicked.connect(self.button_clicked)
         
-        self.mqtt_listener = MQTT_Listener("192.168.1.9", "listener")
-        self.threadpool = QtCore.QThreadPool()
-        self.threadpool.start(self.mqtt_listener)
+        self.mqtt_listener = MQTT_Listener(BROKER_IP, "listener")
         self.mqtt_listener.signals.new_light_value.connect(self.update_value_label)
         self.mqtt_listener.signals.new_temperature_value.connect(self.update_temperature_label)
         self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
-        
+
+        self.threadpool = QtCore.QThreadPool()
+        self.threadpool.start(self.mqtt_listener)
+
         self.ui.action_edit_light_profile.triggered.connect(self.edit_light_profile)
         
     def edit_light_profile(self):
@@ -50,7 +49,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def send_light_value(self, val):
         switch = client.Client("Yay")
-        switch.connect("192.168.1.9", port = 1883)
+        switch.connect(BROKER_IP, port = 1883)
         switch.publish("optoworld/switch", val)
         switch.disconnect()
 
@@ -62,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def update_light_level_label(self, new_val):
         self.ui.label_status_light_level.setText(f"Light Level: {new_val} lux")
-        
+
     def closeEvent(self, event):
         switch_off = QtWidgets.QMessageBox.question(self, "Switch Off?","Do you want to switch off the light on closing?", 
                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
@@ -73,8 +72,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         sys.stdout.write("\n\n Closing... \n\n Killing mqtt-monitor thread.... \n")
         self.mqtt_listener.alive = False
+        self.mqtt_listener.client.disconnect()
         try:
             self.stim_widget.timer.alive = False
+            self.stim_widget.timer.client.disconnect()
             sys.stdout.write("\nCleaning up remaining timer-threads...")
         except:
             sys.stdout.write("\nNo remaining timer-threads found")
