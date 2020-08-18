@@ -37,11 +37,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.threadpool.start(self.mqtt_listener)
 
         self.ui.action_edit_light_profile.triggered.connect(self.edit_light_profile)
+
         
     def edit_light_profile(self):
         if not hasattr(self, "stim_widget"):        
             self.stim_widget = Stim_widget(parent = self)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.stim_widget)
+        self.dock = self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.stim_widget)
+        # self.dock.setWidget(self.stim_widget)
         self.stim_widget.show()
         
     def button_clicked(self):

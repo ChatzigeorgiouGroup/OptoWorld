@@ -16,16 +16,23 @@ from Tools.Stim_tools.stim_widget_ui import Ui_DockWidget
 import sys, os
 
 BROKER_IP = "192.168.1.9"
+
+class Signals(QtCore.QObject):
+    starting = QtCore.pyqtSignal()
+    finished = QtCore.pyqtSignal()
+
 class Timer(QtCore.QRunnable):
     def __init__(self, timing_df, broker_address = BROKER_IP, port = 1883, client_name = "timer"):
         self.timing_df = timing_df
         QtCore.QRunnable.__init__(self)
+        self.signals = Signals()
         self.client_name = client_name
         self.broker_address = broker_address
         self.port = port
         
     @QtCore.pyqtSlot()
     def run(self):
+        self.signals.starting.emit()
         self.client = client.Client(self.client_name)
         self.client.connect(self.broker_address, self.port)
         self.alive = True
@@ -44,6 +51,7 @@ class Timer(QtCore.QRunnable):
             else:
                 break
         self.client.disconnect()
+        self.signals.finished.emit()
             
 class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
     def __init__(self, stim_df = False, parent = None):
@@ -121,7 +129,15 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
     
     def run_profile(self):
         self.timer = Timer(self.stim_df)
+        self.timer.signals.starting.connect(self.timer_started)
+        self.timer.signals.finished.connect(self.timer_stopped)
         self.parent.threadpool.start(self.timer)
+
+    def timer_started(self):
+        self.parent.ui.button_lightswitch.setEnabled(False)
+
+    def timer_stopped(self):
+        self.parent.ui.button_lightswitch.setEnabled(True)
 
     def save_profile(self):
         save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, directory = os.curdir, filter = ".txt",
