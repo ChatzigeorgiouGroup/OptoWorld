@@ -159,13 +159,15 @@ void loop() {
   client.loop();
   
   long now = millis();
-  if (now - lastMsg > 2000) {
+  if (now - lastMsg > 1000) {
     lastMsg = now;
     ++value;
     float temp = get_temperature();
     float lux = lightSensor.readLightLevel();
-    client.publish("optoworld/light_level", String(lux).c_str());
-    client.publish("optoworld/temperature", String(temp).c_str());
-    client.publish("optoworld/blue_val", String(blue_val).c_str());
+//    client.publish("optoworld/light_level", String(lux).c_str());
+//    client.publish("optoworld/temperature", String(temp).c_str());
+//    client.publish("optoworld/blue_val", String(blue_val).c_str());
+    String message = String(temp)+"_"+String(blue_val)+"_"+String(lux);
+    client.publish("optoworld/status", message.c_str());
   }
 }

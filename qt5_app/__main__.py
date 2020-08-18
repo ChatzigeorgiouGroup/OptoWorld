@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mqtt_listener.signals.new_light_value.connect(self.update_value_label)
         self.mqtt_listener.signals.new_temperature_value.connect(self.update_temperature_label)
         self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
+        self.mqtt_listener.signals.new_status.connect(self.update_status_labels)
 
         self.threadpool = QtCore.QThreadPool()
         self.threadpool.start(self.mqtt_listener)
@@ -56,14 +57,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         switch.publish("optoworld/switch", val)
         switch.disconnect()
 
-    def update_value_label(self, new_val):
-        self.ui.label_status_light.setText(f"Light Value: {new_val}")
-        
-    def update_temperature_label(self, new_val):
-        self.ui.label_status_temperature.setText(f"Temperature: {new_val} C")
-        
-    def update_light_level_label(self, new_val):
-        self.ui.label_status_light_level.setText(f"Light Level: {new_val} lux")
+    def update_status_labels(self, new_val):
+        temperature, light_value, light_intensity = new_val.split("_")
+        self.ui.label_status_temperature.setText(f"Temperature: {temperature} C")
+        self.ui.label_status_light.setText(f"Light Value: {light_value}")
+        self.ui.label_status_light_level.setText(f"Light Level: {light_intensity} lux")
 
     def closeEvent(self, event):
         switch_off = QtWidgets.QMessageBox.question(self, "Switch Off?","Do you want to switch off the light on closing?", 

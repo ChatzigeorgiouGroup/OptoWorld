@@ -17,6 +17,7 @@ class Signals(QtCore.QObject):
     new_light_value = QtCore.pyqtSignal(int)
     new_temperature_value = QtCore.pyqtSignal(float)
     new_light_level_value = QtCore.pyqtSignal(float)
+    new_status = QtCore.pyqtSignal(str)
 
 class MQTT_Listener(QtCore.QRunnable):
     def __init__(self, broker_address, client_name, port = 1883):
@@ -25,21 +26,15 @@ class MQTT_Listener(QtCore.QRunnable):
         self.client_name = client_name
         self.client = client.Client(client_name)
         self.client.connect(broker_address, port)
-        self.client.subscribe("optoworld/blue_val")
-        self.client.subscribe("optoworld/temperature")
-        self.client.subscribe("optoworld/light_level")
+        self.client.subscribe("optoworld/status")
         self.client.on_message = self.on_mqtt_message
+        self.df = False
 
     def on_mqtt_message(self, client, userdata, message):
         m = message.payload.decode()
-        # sys.stdout.write(f"Message on topic {message.topic}: {m} \n")
-        if "temperature" in message.topic:
-            self.signals.new_temperature_value.emit(float(m))
-        elif "blue" in message.topic:
-            self.signals.new_light_value.emit(int(m))
-        elif "level" in message.topic:
-            self.signals.new_light_level_value.emit(float(m))
-    
+        if "status" in message.topic.lower():
+            self.signals.new_status.emit(str(m))
+
     @QtCore.pyqtSlot()
     def run(self):
         self.alive = True
