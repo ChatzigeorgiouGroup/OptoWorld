@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>663</width>
+    <width>758</width>
     <height>643</height>
    </rect>
   </property>
@@ -14,7 +14,7 @@
    <string>Doc&amp;kWidget</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout_3">
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -36,40 +36,74 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>On_duration (s)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBox_on_duration">
-          <property name="maximum">
-           <number>999999999</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>On Duration (H:M:s)</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QSpinBox" name="spinBox_on_hour"/>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_on_minute"/>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_on_second"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Off_duration (s)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBox_off_duration">
-          <property name="maximum">
-           <number>999999999</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Off Duration (H:M:s)</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QSpinBox" name="spinBox_off_hour"/>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_off_minute"/>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_off_second"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -95,36 +129,41 @@
      </layout>
     </item>
     <item row="0" column="1">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QTableView" name="tableView"/>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QPushButton" name="button_save_profile">
-          <property name="text">
-           <string>Save Profile</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="button_load_profile">
-          <property name="text">
-           <string>Load Profile</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="button_run">
-          <property name="text">
-           <string>Run Profile</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Profile</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QTableView" name="tableView"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QPushButton" name="button_save_profile">
+           <property name="text">
+            <string>Save Profile</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_load_profile">
+           <property name="text">
+            <string>Load Profile</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_run">
+           <property name="text">
+            <string>Run Profile</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>

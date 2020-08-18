@@ -87,10 +87,22 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
     def display_stim_df(self):
         model = pandasModel(self.stim_df)
         self.ui.tableView.setModel(model)
-        
+
+    def hms_to_s(self, H, M, s):
+        duration = (H*3600) + (M*60) + s
+        return duration
+
     def add_stim_to_profile(self):
-        on_duration = self.ui.spinBox_on_duration.value()
-        off_duration = self.ui.spinBox_off_duration.value()
+        on_duration_hour = self.ui.spinBox_on_hour.value()
+        on_duration_minute = self.ui.spinBox_on_minute.value()
+        on_duration_second = self.ui.spinBox_on_second.value()
+        on_duration = self.hms_to_s(on_duration_hour, on_duration_minute, on_duration_second)
+
+        off_duration_hour = self.ui.spinBox_off_hour.value()
+        off_duration_minute = self.ui.spinBox_off_minute.value()
+        off_duration_second = self.ui.spinBox_off_second.value()
+        off_duration = self.hms_to_s(off_duration_hour,off_duration_minute, off_duration_second)
+
         intensity = self.ui.spinBox_intensity.value()
         repeats = self.ui.spinBox_repeats.value()
         
