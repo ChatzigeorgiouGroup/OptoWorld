@@ -42,14 +42,24 @@ class Timer(QtCore.QRunnable):
             if self.alive:
                 sys.stdout.write(f"\n Currently executing {index}")
                 self.client.publish("optoworld/switch", row["intensity"])
-                time.sleep(row["on_duration"])
+                duration = row["on_duration"]
+                start_time = time.time()
+                while time.time() - start_time <= duration:
+                    time.sleep(0.5)
+                    if not self.alive:
+                        break
+                # time.sleep(row["on_duration"])
+                if self.alive:
+                    self.client.publish("optoworld/switch", 0)
+                duration = row["off_duration"]
+                start_time = time.time()
+                while time.time() - start_time <= duration:
+                    time.sleep(0.5)
+                    if not self.alive:
+                        break
             else:
                 break
-            if self.alive:
-                self.client.publish("optoworld/switch", 0)
-                time.sleep(row["off_duration"])
-            else:
-                break
+        self.alive = False
         self.client.disconnect()
         self.signals.finished.emit()
             
@@ -67,7 +77,8 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         self.remove_stim_action = QtWidgets.QAction("&Remove Highlighted Stimuli", self, triggered = self.remove_stimuli)
         self.ui.tableView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.tableView.customContextMenuRequested.connect(self.contextMenuEvent_tableView)
-        
+
+        self.running = False
         
         if not stim_df:
             self.stim_df = pd.DataFrame(columns = ["id","on_duration", "off_duration", "intensity"])
@@ -128,16 +139,24 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         self.display_stim_df()
     
     def run_profile(self):
-        self.timer = Timer(self.stim_df)
-        self.timer.signals.starting.connect(self.timer_started)
-        self.timer.signals.finished.connect(self.timer_stopped)
-        self.parent.threadpool.start(self.timer)
+        if self.running == False:
+            self.timer = Timer(self.stim_df)
+            self.timer.signals.starting.connect(self.timer_started)
+            self.timer.signals.finished.connect(self.timer_stopped)
+            self.parent.threadpool.start(self.timer)
+            self.ui.button_run.setText("Stop Experiment")
+            self.running = True
+        else:
+            self.running = False
+            self.timer.alive = False
+            self.ui.button_run.setText("Run Profile")
 
     def timer_started(self):
         self.parent.ui.button_lightswitch.setEnabled(False)
 
     def timer_stopped(self):
         self.parent.ui.button_lightswitch.setEnabled(True)
+        sys.stdout.write("Timer Thread stopped succesfully")
 
     def save_profile(self):
         save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, directory = os.curdir, filter = ".txt",

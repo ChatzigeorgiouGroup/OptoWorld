@@ -30,9 +30,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.button_lightswitch.clicked.connect(self.button_clicked)
         
         self.mqtt_listener = MQTT_Listener(BROKER_IP, "listener")
-        self.mqtt_listener.signals.new_light_value.connect(self.update_value_label)
-        self.mqtt_listener.signals.new_temperature_value.connect(self.update_temperature_label)
-        self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
+        # self.mqtt_listener.signals.new_light_value.connect(self.update_value_label)
+        # self.mqtt_listener.signals.new_temperature_value.connect(self.update_temperature_label)
+        # self.mqtt_listener.signals.new_light_level_value.connect(self.update_light_level_label)
         self.mqtt_listener.signals.new_status.connect(self.update_status_labels)
 
         self.threadpool = QtCore.QThreadPool()
@@ -57,11 +57,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         switch.publish("optoworld/switch", val)
         switch.disconnect()
 
-    def update_status_labels(self, new_val):
-        temperature, light_value, light_intensity = new_val.split("_")
-        self.ui.label_status_temperature.setText(f"Temperature: {temperature} C")
-        self.ui.label_status_light.setText(f"Light Value: {light_value}")
-        self.ui.label_status_light_level.setText(f"Light Level: {light_intensity} lux")
+    def update_status_labels(self, df):
+        # temperature, light_value, light_intensity = new_val.split("_")
+        self.ui.label_status_temperature.setText(f"Temperature: {df['temperature'].values[-1]} C")
+        self.ui.label_status_light.setText(f"Light Value: {df['light_value'].values[-1]}")
+        self.ui.label_status_light_level.setText(f"Light Level: {df['light_intensity'].values[-1]} lux")
+        # print(f"Recieved from signals.new_status:\n\n {df}")
 
     def closeEvent(self, event):
         switch_off = QtWidgets.QMessageBox.question(self, "Switch Off?","Do you want to switch off the light on closing?", 
