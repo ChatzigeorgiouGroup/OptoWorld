@@ -49,10 +49,28 @@ class PlotWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self)
         self.canvas = PlotCanvas(parent=self)
+
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.toggle_toolbar_action = QtWidgets.QAction("&Toggle Toolbar", self, triggered = self.toggle_toolbar)
+        self.customContextMenuRequested.connect(self.contextMenuEvent_PlotWidget)
+
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addWidget(self.toolbar)
         self.layout().addWidget(self.canvas)
+        self.toolbar.setVisible(False)
+
+    def contextMenuEvent_PlotWidget(self, event):
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(self.toggle_toolbar_action)
+        menu.popup(self.mapToGlobal(event))
+
+    def toggle_toolbar(self):
+        if self.toolbar.isVisible() == False:
+            self.toolbar.setVisible(True)
+        else:
+            self.toolbar.setVisible(False)
+
 
     def draw(self):
         self.canvas.draw()

@@ -153,10 +153,12 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
 
     def timer_started(self):
         self.parent.ui.button_lightswitch.setEnabled(False)
+        self.parent.ui.button_lightswitch.setToolTip("Unavailable while running an experiment.")
 
     def timer_stopped(self):
         self.parent.ui.button_lightswitch.setEnabled(True)
-        sys.stdout.write("Timer Thread stopped succesfully")
+        self.parent.ui.button_lightswitch.setToolTip("Directly set the value of the light.")
+        sys.stdout.write("\nTimer Thread stopped succesfully\n")
 
     def save_profile(self):
         save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, directory = os.curdir, filter = ".txt",
