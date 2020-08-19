@@ -15,7 +15,7 @@ import time
 
 
 class Signals(QtCore.QObject):
-    new_status = QtCore.pyqtSignal(pd.core.frame.DataFrame)
+    new_status = QtCore.pyqtSignal(str)
 
 class MQTT_Listener(QtCore.QRunnable):
     def __init__(self, broker_address, client_name, port = 1883):
@@ -32,30 +32,7 @@ class MQTT_Listener(QtCore.QRunnable):
     def on_mqtt_message(self, client, userdata, message):
         m = message.payload.decode()
         if "status" in message.topic.lower():
-            # self.signals.new_status.emit(str(m))
-
-            temperature, light_value, light_intensity = str(m).split("_")
-
-            df = pd.DataFrame()
-            df["time"] = [time.strftime("%H:%M:%S")]
-            df["temperature"] = [float(temperature)]
-            df["light_value"] = [int(light_value)]
-            df["light_intensity"] = [float(light_intensity)]
-
-
-
-            try:
-                self.df = pd.concat([self.df, df])
-            except Exception as e:
-                self.df = df
-
-
-            time_recieved = time.time()
-            if time_recieved - self.time_since_last_message >= 5:
-                self.signals.new_status.emit(self.df)
-                self.time_since_last_message = time_recieved
-
-
+            self.signals.new_status.emit(str(m))
 
     @QtCore.pyqtSlot()
     def run(self):

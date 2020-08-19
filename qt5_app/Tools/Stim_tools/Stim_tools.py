@@ -158,6 +158,8 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
     def timer_stopped(self):
         self.parent.ui.button_lightswitch.setEnabled(True)
         self.parent.ui.button_lightswitch.setToolTip("Directly set the value of the light.")
+        self.running = False
+        self.ui.button_run.setText("Run Profile")
         sys.stdout.write("\nTimer Thread stopped succesfully\n")
 
     def save_profile(self):

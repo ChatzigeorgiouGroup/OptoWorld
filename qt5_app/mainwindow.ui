@@ -46,7 +46,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_status_light_level">
+          <widget class="QLabel" name="label_status_light_intensity">
            <property name="text">
             <string>light_level</string>
            </property>
@@ -132,6 +132,12 @@
     </item>
     <item row="0" column="1">
      <widget class="QFrame" name="framePlotWidget">
+      <property name="minimumSize">
+       <size>
+        <width>600</width>
+        <height>400</height>
+       </size>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -155,14 +161,20 @@
     <property name="title">
      <string>Optio&amp;ns</string>
     </property>
-    <addaction name="action_edit_light_profile"/>
+    <addaction name="actionedit_light_profile"/>
+    <addaction name="actionshow_live_graphs"/>
    </widget>
    <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action_edit_light_profile">
+  <action name="actionedit_light_profile">
    <property name="text">
     <string>&amp;edit light profile</string>
+   </property>
+  </action>
+  <action name="actionshow_live_graphs">
+   <property name="text">
+    <string>show live graphs</string>
    </property>
   </action>
  </widget>
