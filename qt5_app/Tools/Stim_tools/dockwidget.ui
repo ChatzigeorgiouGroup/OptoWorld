@@ -14,26 +14,38 @@
    <string>Doc&amp;kWidget</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QGridLayout" name="gridLayout_3">
+   <layout class="QGridLayout" name="gridLayout_5">
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Intensity (0-255)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBox_intensity">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QFrame" name="frame_3">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Intensity (0-255)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_intensity">
+             <property name="maximum">
+              <number>255</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <widget class="QFrame" name="frame">
@@ -57,13 +69,25 @@
          <item row="1" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QSpinBox" name="spinBox_on_hour"/>
+            <widget class="QSpinBox" name="spinBox_on_hour">
+             <property name="maximum">
+              <number>3600</number>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_on_minute"/>
+            <widget class="QSpinBox" name="spinBox_on_minute">
+             <property name="maximum">
+              <number>60</number>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_on_second"/>
+            <widget class="QSpinBox" name="spinBox_on_second">
+             <property name="maximum">
+              <number>60</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -92,13 +116,25 @@
          <item row="1" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QSpinBox" name="spinBox_off_hour"/>
+            <widget class="QSpinBox" name="spinBox_off_hour">
+             <property name="maximum">
+              <number>3600</number>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_off_minute"/>
+            <widget class="QSpinBox" name="spinBox_off_minute">
+             <property name="maximum">
+              <number>60</number>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_off_second"/>
+            <widget class="QSpinBox" name="spinBox_off_second">
+             <property name="maximum">
+              <number>60</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -106,18 +142,34 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Repeats</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBox_repeats"/>
-        </item>
-       </layout>
+       <widget class="QFrame" name="frame_4">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Repeats</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_repeats">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="button_add_stim">

@@ -11,7 +11,9 @@ plt.rcParams['figure.constrained_layout.use'] = True
 class PlotCanvas(FigureCanvas):
     def __init__(self, parent=None, width=4, height=3, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
+        # self.axes = self.fig.add_subplot(111)
+
+        # self.fig, self.axes = plt.subplots(figsize = (15,5), constrained_layout = True, sharex = True)
 
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)

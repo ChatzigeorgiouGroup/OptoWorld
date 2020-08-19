@@ -106,29 +106,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for ax in [self.axes_temperature, self.axes_intensity, self.axes_light_value]:
                 ax.set_xlabel("Time")
                 ax.xaxis.set_major_locator(plt.MaxNLocator(15))
-            for p in [self.plot_temperature, self.plot_light_value, self.plot_light_intensity]:
-                p.canvas.figure.autofmt_xdate()
-                p.draw()
-                p.canvas.figure.tight_layout()
+
+            self.plot.canvas.figure.autofmt_xdate()
+            self.plot.draw()
+            self.plot.canvas.figure.tight_layout()
         except Exception as e:
             print(str(e))
 
 
     def make_graphs(self):
-        self.plot_temperature = PlotWidget()
-        self.plot_light_intensity = PlotWidget()
-        self.plot_light_value = PlotWidget()
+        # self.plot_temperature = PlotWidget()
+        # self.plot_light_intensity = PlotWidget()
+        # self.plot_light_value = PlotWidget()
+        self.plot = PlotWidget()
 
         self.ui.framePlotWidget.setLayout(QtWidgets.QVBoxLayout())
 
-        for widget in [self.plot_light_intensity, self.plot_light_value, self.plot_temperature]:
-            self.ui.framePlotWidget.layout().addWidget(widget)
-        self.axes_temperature = self.plot_temperature.canvas.figure.gca()
-        self.axes_intensity = self.plot_light_intensity.canvas.figure.gca()
-        self.axes_light_value = self.plot_light_value.canvas.figure.gca()
+        self.ui.framePlotWidget.layout().addWidget(self.plot)
+        self.axes_temperature = self.plot.canvas.figure.add_subplot(311)
+        self.axes_intensity = self.plot.canvas.figure.add_subplot(312)
+        self.axes_light_value = self.plot.canvas.figure.add_subplot(313)
 
-
-        # self.temperature_plot = self.axes_temperature.plot([],[])
+        # for widget in [self.plot_light_intensity, self.plot_light_value, self.plot_temperature]:
+        #     self.ui.framePlotWidget.layout().addWidget(widget)
+        # self.axes_temperature = self.plot_temperature.canvas.figure.gca()
+        # self.axes_intensity = self.plot_light_intensity.canvas.figure.gca()
+        # self.axes_light_value = self.plot_light_value.canvas.figure.gca()
 
     def closeEvent(self, event):
         switch_off = QtWidgets.QMessageBox.question(self, "Switch Off?","Do you want to switch off the light on closing?", 
