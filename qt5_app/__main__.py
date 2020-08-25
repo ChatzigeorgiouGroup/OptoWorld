@@ -43,7 +43,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.actionedit_light_profile.triggered.connect(self.edit_light_profile)
         self.ui.actionshow_live_graphs.triggered.connect(self.toggle_live_graphs)
         self.make_graphs()
-        
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Q:
+            self.close()
+        elif event.key() == QtCore.Qt.Key_Plus:
+            self.send_light_value(255)
+        elif event.key() == QtCore.Qt.Key_Minus:
+            self.send_light_value(0)
+
     def edit_light_profile(self):
         if not hasattr(self, "stim_widget"):        
             self.stim_widget = Stim_widget(parent = self)
@@ -92,15 +100,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             self.axes_temperature.clear()
             self.axes_temperature.plot(df["time"], df["temperature"])
-            self.axes_temperature.set_ylabel('Temperature (C)')
+            self.axes_temperature.set_ylabel('Temperature (C)', fontsize= 10)
 
             self.axes_intensity.clear()
             self.axes_intensity.plot(df["time"], df["intensity"])
-            self.axes_intensity.set_ylabel('Intensity (lux)')
+            self.axes_intensity.set_ylabel('Intensity (lux)', fontsize= 10)
 
             self.axes_light_value.clear()
             self.axes_light_value.plot(df["time"], df["value"])
-            self.axes_light_value.set_ylabel('Value (0-255)')
+            self.axes_light_value.set_ylabel('Value (0-255)', fontsize= 10)
 
 
             for ax in [self.axes_temperature, self.axes_intensity, self.axes_light_value]:
