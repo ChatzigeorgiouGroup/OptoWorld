@@ -21,7 +21,7 @@ from Tools.Stim_tools.Stim_tools import Stim_widget
 from Tools.MQTT_tools import MQTT_Listener
 from Tools.PlotWidget import PlotWidget
 
-BROKER_IP = "192.168.1.9"
+BROKER_IP = "192.168.1.4"
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -43,6 +43,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.actionedit_light_profile.triggered.connect(self.edit_light_profile)
         self.ui.actionshow_live_graphs.triggered.connect(self.toggle_live_graphs)
         self.make_graphs()
+
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Q:
@@ -75,6 +76,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.label_status_light_intensity.setText(f"Light Level: {light_intensity} lux")
 
         df = pd.DataFrame()
+        df["date"] = [datetime.datetime.now().strftime("%Y%m%d")]
         df["time"] = [time.strftime("%H:%M:%S")]
         # df["time"] = time.time()?
         df["temperature"] = [float(temperature)]
@@ -97,18 +99,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.plotting = False
             self.ui.framePlotWidget.setVisible(False)
     def update_plots(self, df):
+
+
         try:
+            frame_height = self.ui.framePlotWidget.size().height()
+            if frame_height < 700:
+                fs = 6
+            elif frame_height > 700 and frame_height < 800:
+                fs = 8
+            else:
+                fs = 10
             self.axes_temperature.clear()
             self.axes_temperature.plot(df["time"], df["temperature"])
-            self.axes_temperature.set_ylabel('Temperature (C)', fontsize= 10)
+            self.axes_temperature.set_ylabel('Temperature (C)', fontsize= fs)
 
             self.axes_intensity.clear()
             self.axes_intensity.plot(df["time"], df["intensity"])
-            self.axes_intensity.set_ylabel('Intensity (lux)', fontsize= 10)
+            self.axes_intensity.set_ylabel('Intensity (lux)', fontsize= fs)
 
             self.axes_light_value.clear()
             self.axes_light_value.plot(df["time"], df["value"])
-            self.axes_light_value.set_ylabel('Value (0-255)', fontsize= 10)
+            self.axes_light_value.set_ylabel('Value (0-255)', fontsize= fs)
 
 
             for ax in [self.axes_temperature, self.axes_intensity, self.axes_light_value]:

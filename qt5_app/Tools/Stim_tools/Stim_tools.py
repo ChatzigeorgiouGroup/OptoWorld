@@ -15,7 +15,7 @@ from Tools.General.PandasModel import pandasModel
 from Tools.Stim_tools.stim_widget_ui import Ui_DockWidget
 import sys, os
 
-BROKER_IP = "192.168.1.9"
+BROKER_IP = "192.168.1.4"
 
 class Signals(QtCore.QObject):
     starting = QtCore.pyqtSignal()
@@ -69,7 +69,8 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         Ui_DockWidget.__init__(self)
         self.ui = Ui_DockWidget()
         self.ui.setupUi(self)
-        
+
+        self.ui.spinBox_intensity.setValue(255)
         self.setWindowTitle("Stimulus Profile")
         self.connect_ui()
         self.parent = parent
@@ -152,6 +153,7 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
             self.ui.button_run.setText("Run Profile")
 
     def timer_started(self):
+        self.start_time = time.strftime("%H:%M:%S")
         self.parent.ui.button_lightswitch.setEnabled(False)
         self.parent.ui.button_lightswitch.setToolTip("Unavailable while running an experiment.")
 
@@ -160,7 +162,28 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         self.parent.ui.button_lightswitch.setToolTip("Directly set the value of the light.")
         self.running = False
         self.ui.button_run.setText("Run Profile")
+        self.stop_time = time.strftime("%H:%M:%S")
+
+        self.save_recording(self.start_time, self.stop_time)
         sys.stdout.write("\nTimer Thread stopped succesfully\n")
+
+    def save_recording(self, start_time = None, stop_time = None):
+        save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, caption = "Save the experiment data log", directory = f"{os.curdir}/{time.strftime('%Y%m%d_%H%M')}_optoworld_log",  filter = ".txt",
+                                                          options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        if not save_path.endswith(".txt"):
+            save_path += ".txt"
+        start_time = start_time.replace(":", "")
+        stop_time = stop_time.replace(":", "")
+        try:
+            sys.stdout.write(f"\n\n{start_time} {stop_time}")
+            if start_time != None and stop_time != None:
+                sys.stdout.write(f"\n\nShape of full dataframe: {self.parent.df.shape}")
+                to_save = self.parent.df[(self.parent.df["time"].str.replace(":", "").astype(int) > int(start_time)) & (self.parent.df["time"].str.replace(":","").astype(int) < int(stop_time))]
+                to_save.to_csv(save_path, sep = "\t")
+        except Exception as e:
+            print(str(e))
+            print("Could not save the experiment Dataframe")
+
 
     def save_profile(self):
         save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, directory = os.curdir, filter = ".txt",

@@ -55,7 +55,7 @@ int blue_val;
 
 const char* ssid = "DanielsNetwork";
 const char* password = "DwodBsngl#29teRknor";
-const char* mqtt_server = "192.168.1.9";
+const char* mqtt_server = "192.168.1.4";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
