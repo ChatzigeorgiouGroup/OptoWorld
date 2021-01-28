@@ -20,6 +20,7 @@ BROKER_IP = "192.168.1.4"
 class Signals(QtCore.QObject):
     starting = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
+    start_stim = QtCore.pyqtSignal(int)
 
 class Timer(QtCore.QRunnable):
     def __init__(self, timing_df, broker_address = BROKER_IP, port = 1883, client_name = "timer"):
@@ -41,11 +42,14 @@ class Timer(QtCore.QRunnable):
         for index, row in self.timing_df.iterrows():
             if self.alive:
                 sys.stdout.write(f"\n Currently executing {index}")
+                self.signals.start_stim.emit(
+                    int(index[-3:]))
                 self.client.publish("optoworld/switch", row["intensity"])
                 duration = row["on_duration"]
                 start_time = time.time()
                 while time.time() - start_time <= duration:
                     time.sleep(0.5)
+                    self.client.publish("optoworld/switch", row["intensity"])
                     if not self.alive:
                         break
                 # time.sleep(row["on_duration"])
@@ -55,6 +59,7 @@ class Timer(QtCore.QRunnable):
                 start_time = time.time()
                 while time.time() - start_time <= duration:
                     time.sleep(0.5)
+                    self.client.publish("optoworld/switch", 0)
                     if not self.alive:
                         break
             else:
@@ -69,6 +74,8 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         Ui_DockWidget.__init__(self)
         self.ui = Ui_DockWidget()
         self.ui.setupUi(self)
+
+        # self.ui.tableView.setStyleSheet("selection-border: 2px solid red")
 
         self.ui.spinBox_intensity.setValue(255)
         self.setWindowTitle("Stimulus Profile")
@@ -144,6 +151,7 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
             self.timer = Timer(self.stim_df)
             self.timer.signals.starting.connect(self.timer_started)
             self.timer.signals.finished.connect(self.timer_stopped)
+            self.timer.signals.start_stim.connect(self.stim_started)
             self.parent.threadpool.start(self.timer)
             self.ui.button_run.setText("Stop Experiment")
             self.running = True
@@ -152,17 +160,25 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
             self.timer.alive = False
             self.ui.button_run.setText("Run Profile")
 
+    def stim_started(self, i):
+        self.ui.tableView.clearSelection()
+        self.ui.tableView.selectRow(i)
+
+
     def timer_started(self):
         self.start_time = time.strftime("%H:%M:%S")
         self.parent.ui.button_lightswitch.setEnabled(False)
         self.parent.ui.button_lightswitch.setToolTip("Unavailable while running an experiment.")
+        self.ui.tableView.setStyleSheet("selection-background-color: white; selection-color: blue; border-width: 5px; border-color: red")
 
     def timer_stopped(self):
+        self.ui.tableView.clearSelection()
         self.parent.ui.button_lightswitch.setEnabled(True)
         self.parent.ui.button_lightswitch.setToolTip("Directly set the value of the light.")
         self.running = False
         self.ui.button_run.setText("Run Profile")
         self.stop_time = time.strftime("%H:%M:%S")
+        self.ui.tableView.setStyleSheet("")
 
         self.save_recording(self.start_time, self.stop_time)
         sys.stdout.write("\nTimer Thread stopped succesfully\n")
@@ -175,9 +191,7 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         start_time = start_time.replace(":", "")
         stop_time = stop_time.replace(":", "")
         try:
-            sys.stdout.write(f"\n\n{start_time} {stop_time}")
             if start_time != None and stop_time != None:
-                sys.stdout.write(f"\n\nShape of full dataframe: {self.parent.df.shape}")
                 to_save = self.parent.df[(self.parent.df["time"].str.replace(":", "").astype(int) > int(start_time)) & (self.parent.df["time"].str.replace(":","").astype(int) < int(stop_time))]
                 to_save.to_csv(save_path, sep = "\t")
         except Exception as e:
