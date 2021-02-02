@@ -27,10 +27,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
+        self.setWindowTitle("OptoWorld")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.button_lightswitch.clicked.connect(self.button_clicked)
-        
+
+
         self.mqtt_listener = MQTT_Listener(BROKER_IP, "listener")
         self.mqtt_listener.signals.new_status.connect(self.update_status_labels)
 
@@ -114,10 +116,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.axes_temperature.set_ylabel('Temperature (C)', fontsize= fs)
 
             self.axes_intensity.clear()
+            self.axes_intensity.set_ylim(0,1050)
             self.axes_intensity.plot(df["time"], df["intensity"])
             self.axes_intensity.set_ylabel('Intensity (lux)', fontsize= fs)
 
             self.axes_light_value.clear()
+            self.axes_light_value.set_ylim(0,300)
             self.axes_light_value.plot(df["time"], df["value"])
             self.axes_light_value.set_ylabel('Value (0-255)', fontsize= fs)
 

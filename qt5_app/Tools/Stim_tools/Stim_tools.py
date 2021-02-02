@@ -56,6 +56,7 @@ class Timer(QtCore.QRunnable):
                 if self.alive:
                     self.client.publish("optoworld/switch", 0)
                 duration = row["off_duration"]
+
                 start_time = time.time()
                 while time.time() - start_time <= duration:
                     time.sleep(0.5)
