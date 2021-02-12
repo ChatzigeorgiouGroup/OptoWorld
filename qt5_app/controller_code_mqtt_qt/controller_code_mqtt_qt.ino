@@ -53,9 +53,9 @@ int blue_val;
 
 // Update these with values suitable for your network.
 
-const char* ssid = "DanielsNetwork";
-const char* password = "DwodBsngl#29teRknor";
-const char* mqtt_server = "192.168.1.4";
+const char* ssid = "<my_ssid";
+const char* password = "<my_password>";
+const char* mqtt_server = "<my_mqtt_broker_ip";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
