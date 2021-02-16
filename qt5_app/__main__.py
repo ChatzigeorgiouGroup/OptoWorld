@@ -20,6 +20,7 @@ from Tools.Stim_tools.Stim_tools import Timer
 from Tools.Stim_tools.Stim_tools import Stim_widget
 from Tools.MQTT_tools import MQTT_Listener
 from Tools.PlotWidget import PlotWidget
+from threading import Thread
 
 BROKER_IP = "192.168.1.4"
 
@@ -27,24 +28,46 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
-        self.setWindowTitle("OptoWorld")
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.setWindowTitle("OptoWorld")
+        self.start_mqtt()
+
         self.ui.button_lightswitch.clicked.connect(self.button_clicked)
-
-
-        self.mqtt_listener = MQTT_Listener(BROKER_IP, "listener")
-        self.mqtt_listener.signals.new_status.connect(self.update_status_labels)
-
-        self.threadpool = QtCore.QThreadPool()
-        self.threadpool.start(self.mqtt_listener)
-
-        self.plotting = False
-        self.ui.framePlotWidget.setVisible(False)
-
         self.ui.actionedit_light_profile.triggered.connect(self.edit_light_profile)
         self.ui.actionshow_live_graphs.triggered.connect(self.toggle_live_graphs)
         self.make_graphs()
+
+
+    def start_mqtt(self):
+        start_thread = Thread(target=self.start_mqtt_thread, )
+        start_thread.start()
+
+    def start_mqtt_thread(self):
+        self.connected = False
+        start_time = time.time()
+        while not self.connected:
+            try:
+                self.mqtt_listener = MQTT_Listener(BROKER_IP, "listener")
+                self.ui.label_mqtt_status.setText("Connected to Broker")
+                self.ui.label_mqtt_status.setStyleSheet("color: green")
+                self.mqtt_listener.signals.new_status.connect(self.update_status_labels)
+                self.mqtt_listener.signals.disconnected.connect(self.start_mqtt)
+                self.threadpool = QtCore.QThreadPool()
+                self.threadpool.start(self.mqtt_listener)
+                self.connected = True
+            except Exception as e:
+                self.ui.label_mqtt_status.setText(f"Broker not found. ({int(time.time()-start_time)}s)")
+                self.ui.label_mqtt_status.setStyleSheet("color: red")
+                self.connected = False
+                sys.stdout.write(str(e))
+                time.sleep(1)
+        self.plotting = False
+        self.ui.framePlotWidget.setVisible(False)
+
+
 
 
     def keyPressEvent(self, event):

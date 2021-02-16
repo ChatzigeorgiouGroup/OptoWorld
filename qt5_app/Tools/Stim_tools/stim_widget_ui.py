@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'dockwidget.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -116,6 +117,16 @@ class Ui_DockWidget(object):
         self.tableView = QtWidgets.QTableView(self.groupBox)
         self.tableView.setObjectName("tableView")
         self.verticalLayout_2.addWidget(self.tableView)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.label_progress = QtWidgets.QLabel(self.groupBox)
+        self.label_progress.setObjectName("label_progress")
+        self.horizontalLayout_6.addWidget(self.label_progress)
+        self.progressBar = QtWidgets.QProgressBar(self.groupBox)
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setObjectName("progressBar")
+        self.horizontalLayout_6.addWidget(self.progressBar)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_6)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.button_save_profile = QtWidgets.QPushButton(self.groupBox)
@@ -143,8 +154,7 @@ class Ui_DockWidget(object):
         self.label_4.setText(_translate("DockWidget", "Repeats"))
         self.button_add_stim.setText(_translate("DockWidget", "Add stim to profile"))
         self.groupBox.setTitle(_translate("DockWidget", "Profile"))
+        self.label_progress.setText(_translate("DockWidget", "Progress:"))
         self.button_save_profile.setText(_translate("DockWidget", "Save Profile"))
         self.button_load_profile.setText(_translate("DockWidget", "Load Profile"))
         self.button_run.setText(_translate("DockWidget", "Run Profile"))
-
-

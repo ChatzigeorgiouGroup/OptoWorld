@@ -21,6 +21,7 @@ class Signals(QtCore.QObject):
     starting = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
     start_stim = QtCore.pyqtSignal(int)
+    progress = QtCore.pyqtSignal(tuple)
 
 class Timer(QtCore.QRunnable):
     def __init__(self, timing_df, broker_address = BROKER_IP, port = 1883, client_name = "timer"):
@@ -47,27 +48,38 @@ class Timer(QtCore.QRunnable):
                 self.client.publish("optoworld/switch", row["intensity"])
                 duration = row["on_duration"]
                 start_time = time.time()
-                while time.time() - start_time <= duration:
+                time_spent = time.time() - start_time
+                while time_spent <= duration:
                     time.sleep(0.5)
                     self.client.publish("optoworld/switch", row["intensity"])
+                    progress = (time_spent/duration)*100
+                    self.signals.progress.emit((f"{row['id']} on", progress))
+                    time_spent = time.time() - start_time
                     if not self.alive:
                         break
                 # time.sleep(row["on_duration"])
+                self.signals.progress.emit((row["id"], 100))
                 if self.alive:
                     self.client.publish("optoworld/switch", 0)
                 duration = row["off_duration"]
 
                 start_time = time.time()
-                while time.time() - start_time <= duration:
+                time_spent = time.time() - start_time
+                while time_spent <= duration:
                     time.sleep(0.5)
                     self.client.publish("optoworld/switch", 0)
+                    progress = (time_spent/duration)*100
+                    self.signals.progress.emit((f"{row['id']} off", progress))
+                    time_spent = time.time() - start_time
                     if not self.alive:
                         break
             else:
                 break
         self.alive = False
         self.client.disconnect()
+        self.signals.progress.emit(("Finished", 100))
         self.signals.finished.emit()
+        self.signals.progress.emit(("Finished", 0))
             
 class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
     def __init__(self, stim_df = False, parent = None):
@@ -94,7 +106,21 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         else:
             self.stim_df = stim_df
         self.display_stim_df()
-        
+        self.show_progress = False
+
+    @property
+    def show_progress(self):
+        return self._progress
+    @show_progress.setter
+    def show_progress(self, progress):
+        self._progress = progress
+        if self._progress:
+            self.ui.label_progress.setVisible(True)
+            self.ui.progressBar.setVisible(True)
+        else:
+            self.ui.label_progress.setVisible(False)
+            self.ui.progressBar.setVisible(False)
+
     
     def contextMenuEvent_tableView(self, event):
         menu = QtWidgets.QMenu(self)
@@ -153,6 +179,7 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
             self.timer.signals.starting.connect(self.timer_started)
             self.timer.signals.finished.connect(self.timer_stopped)
             self.timer.signals.start_stim.connect(self.stim_started)
+            self.timer.signals.progress.connect(self.update_progress)
             self.parent.threadpool.start(self.timer)
             self.ui.button_run.setText("Stop Experiment")
             self.running = True
@@ -166,13 +193,21 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         self.ui.tableView.selectRow(i)
 
 
+    def update_progress(self, event):
+        stim_id, progress = event
+        self.ui.label_progress.setText(f"Executing {stim_id}")
+        self.ui.progressBar.setValue(progress)
+
     def timer_started(self):
+        self.show_progress = True
         self.start_time = time.strftime("%H:%M:%S")
         self.parent.ui.button_lightswitch.setEnabled(False)
         self.parent.ui.button_lightswitch.setToolTip("Unavailable while running an experiment.")
         self.ui.tableView.setStyleSheet("selection-background-color: white; selection-color: blue; border-width: 5px; border-color: red")
 
     def timer_stopped(self):
+
+        self.show_progress = False
         self.ui.tableView.clearSelection()
         self.parent.ui.button_lightswitch.setEnabled(True)
         self.parent.ui.button_lightswitch.setToolTip("Directly set the value of the light.")
