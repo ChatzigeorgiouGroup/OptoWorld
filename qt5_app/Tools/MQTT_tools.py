@@ -13,7 +13,6 @@ import pandas as pd
 import sys
 import time
 
-
 class Signals(QtCore.QObject):
     new_status = QtCore.pyqtSignal(str)
     disconnected = QtCore.pyqtSignal()

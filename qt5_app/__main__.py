@@ -21,14 +21,16 @@ from Tools.Stim_tools.Stim_tools import Stim_widget
 from Tools.MQTT_tools import MQTT_Listener
 from Tools.PlotWidget import PlotWidget
 from threading import Thread
+import os
 
-BROKER_IP = "192.168.1.4"
+BROKER_IP = "192.168.88.201"
+HOME = os.environ["HOME"]
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
-
+        self.global_start_time = time.strftime('%Y%m%d_%H%M')
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -39,6 +41,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.actionedit_light_profile.triggered.connect(self.edit_light_profile)
         self.ui.actionshow_live_graphs.triggered.connect(self.toggle_live_graphs)
         self.make_graphs()
+
+        if not os.path.exists(f"{HOME}/optoworld_logs"):
+            os.mkdir(f"{HOME}/optoworld_logs")
 
 
     def start_mqtt(self):
@@ -139,7 +144,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.axes_temperature.set_ylabel('Temperature (C)', fontsize= fs)
 
             self.axes_intensity.clear()
-            self.axes_intensity.set_ylim(0,1050)
+            # self.axes_intensity.set_ylim(0,1050)
             self.axes_intensity.plot(df["time"], df["intensity"])
             self.axes_intensity.set_ylabel('Intensity (lux)', fontsize= fs)
 
@@ -155,7 +160,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.plot.canvas.figure.autofmt_xdate()
             self.plot.draw()
-            self.plot.canvas.figure.tight_layout()
+            # self.plot.canvas.figure.tight_layout()
         except Exception as e:
             print(str(e))
 
@@ -197,7 +202,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         except:
             sys.stdout.write("\nNo remaining timer-threads found")
         
-        self.df.to_csv("dataframe_test_long_profile.csv", sep = "\t")
+        self.df.to_csv(f"{HOME}/optoworld_logs/MAIN_LOG_{self.global_start_time}_to_{time.strftime('%Y%m%d_%H%M')}.csv", sep = "\t")
         sys.stdout.write("\n\nGood Bye")
         event.accept()
 

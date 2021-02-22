@@ -14,8 +14,9 @@ import pandas as pd
 from Tools.General.PandasModel import pandasModel
 from Tools.Stim_tools.stim_widget_ui import Ui_DockWidget
 import sys, os
+HOME = os.environ["HOME"]
 
-BROKER_IP = "192.168.1.4"
+BROKER_IP = "192.168.88.201"
 
 class Signals(QtCore.QObject):
     starting = QtCore.pyqtSignal()
@@ -220,16 +221,19 @@ class Stim_widget(QtWidgets.QDockWidget, Ui_DockWidget):
         sys.stdout.write("\nTimer Thread stopped succesfully\n")
 
     def save_recording(self, start_time = None, stop_time = None):
-        save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, caption = "Save the experiment data log", directory = f"{os.curdir}/{time.strftime('%Y%m%d_%H%M')}_optoworld_log",  filter = ".txt",
-                                                          options=QtWidgets.QFileDialog.DontUseNativeDialog)
-        if not save_path.endswith(".txt"):
-            save_path += ".txt"
+        # save_path, _ = QtWidgets.QFileDialog.getSaveFileName(parent = self, caption = "Save the experiment data log", directory = f"{os.curdir}/{time.strftime('%Y%m%d_%H%M')}_optoworld_log",  filter = ".txt",
+        #                                                   options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        # if not save_path.endswith(".txt"):
+        #     save_path += ".txt"
+
+        save_path = f"{HOME}/optoworld_logs/{time.strftime('%Y%m%d_%H%M')}_experiment_log.csv"
         start_time = start_time.replace(":", "")
         stop_time = stop_time.replace(":", "")
         try:
             if start_time != None and stop_time != None:
                 to_save = self.parent.df[(self.parent.df["time"].str.replace(":", "").astype(int) > int(start_time)) & (self.parent.df["time"].str.replace(":","").astype(int) < int(stop_time))]
                 to_save.to_csv(save_path, sep = "\t")
+                print(f"Saved log as {save_path}")
         except Exception as e:
             print(str(e))
             print("Could not save the experiment Dataframe")
